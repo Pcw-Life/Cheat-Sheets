@@ -1,0 +1,337 @@
+# Apple smart card config
+
+## Prerequisites
+
+    macOS High Sierra or later
+
+    an administrator account with a password configured
+
+    a YubiKey with the PIV application. Make sure you go through the device setup.
+
+    YubiKey Manager CLI installed
+
+## Steps
+
+    Generate certificates on your YubiKey to be paired with macOS.
+
+        Generate key pairs for slot 9a and 9d, save public part to files.
+
+        ykman piv keys generate 9a --algorithm ECCP256  /tmp/9a.pub
+        ykman piv keys generate 9d --algorithm ECCP256 /tmp/9d.pub
+
+        Generate self-signed certificates, anything can be used as subject. You may also set the expiration, default is one year.:
+
+        ykman piv certificates generate 9a --subject miniC.a /tmp/9a.pub
+
+         ykman piv certificates generate 9d --subject miniC.d /tmp/9d.pub
+
+## Pair the the YubiKey with macOS
+
+        The public key hash should now be listed as an unpaired identity.
+
+        sc_auth identities
+
+        Use the listed hash to pair the YubiKey with your user.
+
+        sc_auth pair -h HASH -u USERNAME
+
+        Verify that your user is paired:
+
+        sc_auth list
+
+    You may now use your YubiKey for login, but your password still works as well.
+
+### Install a configuration profile
+
+        To enforce the use of smart card a configuration profile needs to be installed. A sample profile can be found here. Save the sample profile as sample.mobileconfig
+
+        Install the profile by double-clicking on the profile and following the OS prompts.
+
+The YubiKey is now required for all authentication tasks on the system.
+Additional options
+
+Note that even though this guide uses self-signed certificates, any pair of certifcates stored in slot 9a and 9d may be used for pairing. To also verify that the certificates used are trusted, configure the checkCertificateTrust option in the profile.
+
+The tokenRemovalAction may be added to the profile to automatically start the screensaver when the YubiKey is removed.
+
+---
+
+# Admin's when --Enable smart card-only login
+
+Make sure that you carefully follow these steps to ensure that users will be able to log in to the computer.
+
+    Pair a smart card to an admin user account or configure Attribute Matching.
+    If you’ve enabled strict certificate checks, install any root certificates or intermediates that are required.
+    Confirm that you can log in to an administrator account using a smart card.
+    Install a smart-card configuration profile that includes "<key>enforceSmartCard</key><true/>," as shown in the smart card-only configuration profile below.
+    Confirm that you can still log in using a smart card.
+
+For more information about smart card payload settings, see the Apple Configuration Profile Reference.
+
+For more information about using smart card services, see the macOS Deployment Guide or open Terminal and enter man SmartCardServices.
+
+### Disable smart card-only authentication
+
+If you manually manage the profiles that are installed on the computer, you can remove the smart card-only profile in two ways. You can use the Profiles pane of System Preferences, or you can use the /usr/bin/profiles command-line tool. For more information, open Terminal and enter man profiles.
+
+If your client computers are enrolled in Mobile Device Management (MDM), you can restore password-based authentication. To do this, remove the smart card configuration profile that enables the smart card-only restriction from the client computers.
+
+To prevent users from being locked out of their account, remove the enforceSmartCard profile before you unpair a smart card or disable attribute matching. If a user is locked out of their account, remove the configuration profile to fix the issue.
+
+If you apply the smart card-only policy before you enable smart card-only authentication, a user can get locked out of their computer. To fix this issue, remove the smart card-only policy:
+
+    Turn on your Mac, then immediately press and hold Command-R to start up from macOS Recovery. Release the keys when you see the Apple logo, a spinning globe, or a prompt for a firmware password. 
+    Select Disk Utility from the Utilities window, then click Continue.
+    From the Disk Utility sidebar, select the volume that you're using, then choose File > Mount from the menu bar. (If the volume is already mounted, this option is dimmed.) Then enter your administrator password when prompted.
+    Quit Disk Utility.
+    Choose Terminal from the Utilities menu in the menu bar.
+    Delete the Configuration Profile Repository. To do this, open Terminal and enter the following commands.
+    In these commands, replace <volumename> with the name of the macOS volume where the profile settings were installed. 
+    rm /Volumes/<volumename>/var/db/ConfigurationProfiles/MDM_ComputerPrefs.plist
+    rm /Volumes/<volumename>/var/db/ConfigurationProfiles/.profilesAreInstalled
+    rm /Volumes/<volumename>/var/db/ConfigurationProfiles/Settings/.profilesAreInstalled
+    rm /Volumes/<volumename>/var/db/ConfigurationProfiles/Store/ConfigProfiles.binary
+    rm /Volumes/<volumename>/var/db/ConfigurationProfiles/Setup/.profileSetupDone
+    When done, choose Apple () menu > Restart.
+    Reinstall all the configuration profiles that existed before you enabled smart card-only authentication.
+
+#### Configure Secure Shell Daemon (SSHD) to support smart card-only authentication
+
+Users can use their smart card to authenticate over SSH to the local computer or to remote computers that are correctly configured. Follow these steps to configure SSHD on a computer so that it supports smart card authentication.
+
+Update the /etc/ssh/sshd_config file:
+
+    Use the following command to back up the sshd_config file:
+    
+    sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config_backup_`date "+%Y-%m-%d_%H:%M"`
+    
+    In the sshd_config file, change
+    "#ChallengeResponseAuthentication yes" to "ChallengeResponseAuthentication no" 
+    and change 
+    "#PasswordAuthentication yes" to "#PasswordAuthentication no."
+
+Then, use the following commands to restart SSHD:
+
+sudo launchctl stop com.openssh.sshd
+
+sudo launchctl start com.openssh.sshd
+
+##### authenticate SSH sessions using a smart card
+
+    Use the following command to export the public key from their smart card:
+    ssh-keygen -D /usr/lib/ssh-keychain.dylib
+    Add the public key from the previous step to the ~/.ssh/authorized_keys file on the target computer.
+    Use the following command to back up the ssh_config file:
+    sudo cp /etc/ssh/ssh_config /etc/ssh/ssh_config_backup_`date "+%Y-%m-%d_%H:%M"`
+    In the/etc/ssh/ssh_config file, add the line "PKCS11Provider=/usr/lib/ssh-keychain.dylib."
+
+##### add the private key to their ssh-agent
+
+ssh-add -s /usr/lib/ssh-keychain.dylib
+
+#### Enable smart card-only for the SUDO command
+
+Use the following command to back up the /etc/pam.d/sudo file:
+
+sudo cp /etc/pam.d/sudo /etc/pam.d/sudo_backup_`date "+%Y-%m-%d_%H:%M"`
+
+Then, replace all of the contents of the /etc/pam.d/sudo file with the following text:
+
+```  bash
+# sudo: auth account password session
+auth        sufficient    pam_smartcard.so
+auth        required      pam_opendirectory.so
+auth        required      pam_deny.so
+account     required      pam_permit.so
+password    required      pam_deny.so
+session     required      pam_permit.so
+```
+
+#### Enable smart card-only for the LOGIN command
+
+Use the following command to back up the /etc/pam.d/login file:
+
+sudo cp /etc/pam.d/login /etc/pam.d/login_backup_`date "+%Y-%m-%d_%H:%M"`
+
+Then, replace all of the contents of the/etc/pam.d/login file with the following text:
+
+# login: auth account password session
+
+auth        sufficient    pam_smartcard.so
+auth        optional      pam_krb5.so use_kcminit
+auth        optional      pam_ntlm.so try_first_pass
+auth        optional      pam_mount.so try_first_pass
+auth        required      pam_opendirectory.so try_first_pass
+auth        required      pam_deny.so
+account     required      pam_nologin.so
+account     required      pam_opendirectory.so
+password    required      pam_opendirectory.so
+session     required      pam_launchd.so
+session     required      pam_uwtmp.so
+session     optional      pam_mount.so
+
+#### Enable smart card-only for the SU command
+
+Use the following command to back up the /etc/pam.d/su file:
+
+sudo cp /etc/pam.d/su /etc/pam.d/su_backup_`date "+%Y-%m-%d_%H:%M"`
+
+Then, replace all of the contents of the/etc/pam.d/su file with the following text:
+
+# su: auth account password session
+
+auth        sufficient    pam_smartcard.so
+auth        required      pam_rootok.so
+auth        required      pam_group.so no_warn group=admin,wheel ruser root_only fail_safe
+account     required      pam_permit.so
+account     required      pam_opendirectory.so no_check_shell
+password    required      pam_opendirectory.so
+session     required      pam_launchd.so
+
+#### smart card-only example profile
+
+``` plist
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>PayloadContent</key>
+<array>
+<dict>
+<key>PayloadDescription</key>
+<string>Configures smart card-only</string>
+<key>PayloadDisplayName</key>
+<string>Smart card-only</string>
+<key>PayloadIdentifier</key>
+<string>com.apple.configprofile.78.</string>
+<key>PayloadOrganization</key>
+<string>Apple</string>
+<key>PayloadType</key>
+<string>com.apple.security.smartcard</string>
+<key>PayloadUUID</key>
+<string>5A15247B-899C-474D-B1D7-DBD82BDE5678</string>
+<key>PayloadVersion</key>
+<integer>1</integer>
+<key>UserPairing</key>
+<false/>
+<key>allowSmartCard</key>
+<true/>
+<key>checkCertificateTrust</key>
+<false/>
+<key>enforceSmartCard</key>
+<true/>
+</dict>
+</array>
+<key>PayloadDescription</key>
+<string>Smartcard profile.</string>
+<key>PayloadDisplayName</key>
+<string>Smart card-only</string>
+<key>PayloadIdentifier</key>
+<string>com.apple.configprofile.77</string>
+<key>PayloadOrganization</key>
+<string></string>
+<key>PayloadRemovalDisallowed</key>
+<false/>
+<key>PayloadType</key>
+<string>Configuration</string>
+<key>PayloadScope</key>
+<string>system</string>
+<key>PayloadUUID</key>
+<string>7D34CC86-C707-44D2-9A9F-C5F6E347BD77</string>
+<key>PayloadVersion</key>
+<integer>1</integer>
+</dict>
+</plist>
+
+```
+
+---
+
+# Local account pairing
+
+The steps below describe the local account pairing process:
+
++Insert a PIV smart card or hard token that includes authentication and encryption identities
++Select “Pair” at the notification dialog
++Provide administrator account credentials (user name/password)
++Provide the 4–6 digit Personal Identification Number (PIN) for the inserted smart card
++Log out and use the smart card and PIN to log back in
+
+Local account pairing can also be accomplished with the command-line and an existing account. See Advanced smart card options for details regarding this method of pairing.
+
+## Attribute mapping with Active Directory
+
+Smart cards can be authenticated against Active Directory using attribute mapping. This method involves having an Active Directory-bound system and setting appropriate information in the file /private/etc/SmartcardLogin.plist. This file must have world readable permissions in order to function properly.
+
+Before the user can take advantage of this feature, macOS must be configured with the appropriate attribute mapping and the local pairing user interface must be disabled. To disable the local pairing dialog, open the Terminal app, then type
+
+```
+sudo defaults write /Library/Preferences/com.apple.security.smartcard UserPairing -bool NO 
+```
+
+and enter your local administrator password when prompted.
+
+As soon as macOS is configured, a user simply inserts a smart card or token to create a new user account. They are prompted to enter their pin and create a unique keychain password that is wrapped by the encryption key in the smart card. Accounts can be configured for network user accounts or mobile user accounts.
+
+Note: The presence of the /private/etc/SmartcardLogin.plist file takes precedence over paired local accounts.
+Network user account with attribute mapping example
+
+The following is an example SmartcardLogin.plist where mapping correlates the NT Principal Name on the PIV Authentication certificate to the userPrincipalName attribute in Active Directory:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+     <key>AttributeMapping</key>
+     <dict>
+          <key>fields</key>
+          <array>
+                <string>NT Principal Name</string>
+          </array>
+          <key>formatString</key>
+          <string>$1</string>
+          <key>dsAttributeString</key>
+          <string>dsAttrTypeNative:userPrincipalName</string>
+     </dict>
+</dict>
+</plist>
+```
+
+### Mobile user account with attribute mapping example
+
+When binding to Active Directory, selecting the “Create mobile account at login” preference allows the creation of mobile accounts for offline login. This mobile user feature is supported with the Kerberos attribute mapping, and it should be configured in the Smartcardlogin.plist. This configuration is also useful in environments where a Mac may not always be able to reach directory server.
+
+Note: Initial account setup requires machine binding and access to the directory server.
+
+The following example SmartcardLogin.plist file matches the Subject Alternative Name type, NT Principal Name, in the identity on the smart card against the Directory Server’s altSecurityIdentities field (Kerberos), allowing for offline login and authentication:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+     <key>AttributeMapping</key>
+     <dict>
+          <key>fields</key>
+          <array>
+                <string>NT Principal Name</string>
+          </array>
+          <key>formatString</key>
+          <string>Kerberos:$1</string>
+          <key>dsAttributeString</key>
+          <string>dsAttrTypeStandard:AltSecurityIdentities</string>
+     </dict>
+</dict>
+</plist>
+```
+
+### Enabling screen saver on token removal
+
+The screen saver can be configured to start automatically when a user removes their token. This option appears only once a smart card has been paired.
+
+There are two main ways to accomplish this:
+
+    Using the Security and Privacy preference pane on the Mac, using the Advanced button and selecting “Turn on screen saver when login token is removed.” Make sure the screensaver settings are configured and select “Require a password immediately after sleep or screen saver begins.”
+
+    With a mobile device management (MDM) solution by using the tokenRemovalAction key.

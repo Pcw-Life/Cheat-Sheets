@@ -1,0 +1,253 @@
+# **Requirements**
+
+        macOS High Sierra (10.13) or newer
+        Admin account
+        YubiKey Manager
+        Personalizing the YubiKey PIV application
+
+## Note: The default settings on the YubiKey PIV application are as follows
+
+        PIN: 123456 (6-8 characters allowed, macOS requires numeric-only)
+        PUK: 12345678 (6-8 characters allowed)
+        Management Key: 010203040506070801020304050607080102030405060708
+        If you have forgotten your PIN and need to reset the PIV application to default, refer to this article.
+
+# **Initial Setup**
+
+## Setting a new PIN
+
+    In YubiKey Manager, click Applications > PIV
+        Click Configure PINs
+        Click Change PIN
+        Current PIN: Assuming the default PIN has not been changed, enter the default PIN of 123456 or simply click Use default.
+        New PIN: Use a 6-8 digit number for your new PIN and note it for future reference. Do not use letters or other characters in your PIN when configuring for macOS login. macOS does not accept non-numeric characters.
+        Confirm new PIN: Confirm the PIN entered in the previous field.
+        Click Change PIN
+
+## Setting a new PUK
+
+    On the Configure PINs screen, click Change PUK
+        Current PUK: Assuming the default PUK has not been changed, enter the default PUK of 12345678 or simply click Use default.
+        New PUK: Use a 6-8 digit number for your new PUK and note it for future reference.
+        Confirm new PUK: Confirm the PUK entered in the previous field.
+        Click Change PUK
+
+## Setting a new Management Key
+
+    On the Configure PINs screen, click Change Management Key
+        Current Management Key: Assuming the default Management Key has not been changed, enter the default Management Key of 010203040506070801020304050607080102030405060708 or simply click Use default.
+        New Management Key: Enter a new 48 character Management Key, or choose Generate to create a randomized Management Key.
+        Protect with PIN: Choose this option if you prefer the Management Key to be encrypted using the PIN. When prompted for the Management Key in the future, the PIN can be provided in place of entering a 48 character Management Key. Considering the Management Key must be entered when configuring your YubiKey for macOS account login, this option is highly recommended.
+        Click Finish. If you chose Protect with PIN, enter your PIN in the PIN field and click OK.
+        
+        
+# **Configuring your YubiKey for macOS account login**
+
+    In YubiKey Manager, click Applications > PIV
+        Click Setup for macOS
+        Click Setup for macOS. If you chose Protect with PIN when setting the Management Key, enter your PIN in the prompt. If you set a custom Management Key and did not protect with PIN, enter the Management Key in the prompt.
+        Click OK.
+        Remove your YubiKey and plug it into the USB port
+        
+    In the SmartCard Pairing macOS prompt, click Pair. Note: If this prompt doesn't appear, see the Troubleshooting and Additional Topics section below.
+        In the password prompt, enter the password for the user account listed in the User Name field and click Pair
+        In the SmartCard Pairing prompt, enter the PIN for your YubiKey (refer to the Setting a new PIN section above) and click OK
+        In the "login" keychain prompt, enter your keychain password (typically the password for the logged in user account) and click OK
+   
+    To test the configuration, lock your Mac (Ctrl+Command+Q), and make sure the password field reads PIN when your YubiKey is inserted. Try unlocking your session with your YubiKey by entering your PIN.
+
+# **How to Unpair Your YubiKey and PIV Login from macOS**
+
+    **Warning:** Unpairing your YubiKey from macOS does not disable the smart requirement, so if you enabled this requirement, you should first disable it before unpairing your YubiKeys, to ensure you do not get locked out. The profile that enables the smart card requirement can be removed via System Preferences > Profiles (note that Profiles will not appear unless you have a profile installed). For more information, see this Apple article under the section Disable smart card-only authentication. If you did not enable the smart card requirement, disregard this warning.
+ 
+        To unpair your PIV login from macOS, follow the procedures below. You can choose to delete all certificates that were installed on your YubiKey when you paired the device with macOS, or only the certificates that were added for logging in to macOS. Also included are reset instructions so that macOS will no longer prompt you to pair your YubiKey or a smart card whenever the device(s) are detected.
+
+# **Removing Certificates from the YubiKey**
+
+## To delete all of the certificates on the YubiKey
+
+    Use this procedure if you want to reset the PIV application, which will remove all certificates and reset the PIN, PUK, and Management Key to default values. If you want to keep your certificates, skip to the next procedure.
+ 
+        In YubiKey Manager, click Applications > PIV
+            Click Reset PIV
+            Click Yes to confirm
+            
+            
+## To delete only the certificates created after completing the macOS login instructions
+
+    Use this procedure if you want to remove only the certificates created for macOS login.
+ 
+        In YubiKey Manager, click Applications > PIV
+            Click Configure Certificates
+            On the Authentication tab, click Delete
+            Click Yes to confirm certificate deletion. If prompted for the PIN, enter the PIN and click OK. If prompted for the Management Key, provide the Management Key and click OK.
+            On the Key Management tab, click Delete
+            Click Yes to confirm certificate deletion. If prompted for the PIN, enter the PIN and click OK. If prompted for the Management Key, provide the Management Key and click OK.
+            Removing the Smart Card Pairing from macOS 
+
+## To remove a single YubiKey or smart card from macOS login
+
+    Open Terminal.
+        Run: '''sc_auth list [username]'''
+        ex: '''sc_auth list john'''
+        Highlight and copy (Command+C) the hash listed for your user.
+        
+    If multiple YubiKey smart cards are paired with your account and you aren't sure which hash is which, you can check the hash of a particular YubiKey by running sc_auth identities with the key in question plugged in.
+        Run: '''sc_auth unpair -h [hash]'''
+        
+        
+## To remove all paired YubiKeys and smart cards for a single user
+
+    Open Terminal.
+        Run: '''sc_auth unpair -u [username]'''
+        ex: '''sc_auth unpair john'''
+        
+        
+## To remove all paired YubiKeys and smart cards for the currently logged in user
+
+    Open Terminal.
+        Run: '''sc_auth unpair -u $(whoami)'''
+        
+        
+# To turn off the pairing user interface in macOS
+
+    Use this option if you want to insert your YubiKey that contain certificates, and you do not want macOS to prompt you to pair it to your account.
+ 
+        Open Terminal
+            Run: '''sc_auth pairing_ui -s disable''' 
+            Note: The pairing UI can be re-enabled with the command '''sc_auth pairing_ui -s enable'''
+
+# **Troubleshooting and Additional Topics**
+
+    ##SmartCard pairing prompt does not appear
+
+        Sometimes, the pairing prompt referenced in step 6 under Configuring your YubiKey for macOS account login will not appear. If this happens, follow the steps below in order.
+ 
+        The Pairing UI in macOS may be disabled. 
+            To try enabling it, run the following command in Terminal: '''sc_auth pairing_ui -s enable''' 
+            To check the status of the Pairing UI, '''run sc_auth pairing_ui -s status'''
+            Once the UI has been enabled, reinsert your YubiKey.
+            
+        If that doesn't help, try reinserting your YubiKey a few additional times and see if that causes the pairing prompt to appear.
+        
+        If the pairing prompt still does not appear, with your YubiKey inserted
+            Try running the following command in Terminal: '''sc_auth pairing_ui -f'''
+            
+        If the above command does nothing, still with the YubiKey inserted 
+            Try running '''sc_auth identities''' (in Terminal) 
+                This will check whether you Mac detects any unpaired smart cards. 
+                If it does, the output of the command should look something like the following.
+                   
+               '''SmartCard: com.apple.pivtoken:2D2248DE2F337A1F99C34BE4DCF44B61 Unpaired identities: A205691C39CBE2FF81F72070C8FEE6B27DF4E527    Certificate For PIV Authentication (Yubico PIV Authentication)'''
+                    
+            If you see this, you can manually initiate pairing of your smart card
+                Using the following (Terminal) command, replacing <hash> with the long string from the sc_auth identities output (A205691C39CBE2FF81F72070C8FEE6B27DF4E527 in the above example): 
+
+                '''sudo sc_auth pair -h <hash> -u $(whoami)'''
+                
+            If sc_auth identities doesn't yield any output on the other hand, consider resetting your YubiKey's PIV smart card application and following through the steps in this article again from the beginning.
+
+# **Requiring your YubiKey Smart Card**
+
+    **Apple silicon users:** Because of some differences in the way smart card authentication works on Macs with Apple silicon CPUs (versus those with Intel), consumers and individuals should understand that requiring a smart card for MacOS login can result in a system lockout if performed incorrectly. Additionally, requiring smart cards for login on Apple silicon Macs also requires the use of smart cards to unlock FileVault. Each time the computer is shut down, macOS uses the last used smart card to lock the disk with FileVault. In this scenario, only the last smart card used to login will work to unlock the disk upon next startup, effectively making any smart cards set up as backups incapable of unlocking the disk. As such, this solution is targeted primarily towards corporate enterprises that have implemented both a centrally managed CA for certificate lifecycle management and an endpoint management system that provides an account recovery process for locked-out users.
+ 
+    **Warning:** Requiring a smart card for authentication can result in a system lockout if performed incorrectly. Yubico is not responsible for any system lockout that occurs as a result of requiring smart cards on your Mac. If you have locked yourself out of your Mac by requiring a smart card and the resources on this page have not helped to get you back in, you will need to contact Apple for further assistance. Before making any configuration changes, please:
+ 
+    Read the two Apple articles linked below, especially the section Disable smart card-only authentication in the second link.
+       
+       [Configure macOS Smart Card-only Authentication](https://support.apple.com/guide/deployment/configure-macos-smart-cardonly-authentication-depfce8de48b/1/web/1.0)
+
+       [Apple Support Article HT208372](https://support.apple.com/en-us/HT208372)
+   
+    Register at least two smart cards and verify that both are working for authentication (to log in to/unlock your account), and refer to the special considerations described when using Apple silicon Macs under the FileVault Configuration > Apple silicon-based Macs section in this article.
+    
+    By default, a paired smart card can be used as an alternative way to log in (instead of a password), but it is not required. This article from our Developers site covers configuring your Mac for smart card-only authentication.
+
+# **FileVault Configuration**
+
+    FileVault is macOS' built-in full-disk encryption solution.
+ 
+        ##Intel-based Macs
+
+            On Intel-based Macs, FileVault does not support smart cards for pre-boot authentication, 
+            meaning you will still need to use your password to unlock your FileVault-encrypted disk. 
+            This is the first password prompt you receive after starting your Mac from a powered-off state.
+ 
+            By default, when a user enters their password to decrypt the FileVault disk at boot, 
+            this password will be passed through and a smart card will not be used for login, 
+            even if you configure it to be required. 
+            
+            To change this so that the user will not automatically be logged in and will be shown the login screen
+            (a second authentication prompt), run the command below in Terminal.
+ 
+                '''sudo defaults write /Library/Preferences/com.apple.loginwindow DisableFDEAutoLogin -bool YES'''
+ 
+        ##**Apple silicon-based Macs**
+
+            On Apple silicon-based Macs, smart cards are now supported for pre-boot FileVault authentication. 
+            Since a Mac's encrypted data has yet to be unlocked during this authentication, 
+            only the smart card that was used most recently to authenticate will work. 
+            This effectively makes any smart cards set up as backups incapable of unlocking the disk. 
+            As such, this solution is targeted primarily towards corporate enterprises that have implemented
+            both a centrally managed CA for certificate lifecycle management and an endpoint management system
+            that provides an account recovery process for locked-out users. 
+            
+            Consumers and individuals should understand that requiring a smart card for MacOS login
+            **can result in a system lockout if performed incorrectly.**
+ 
+        If you are not sure whether your Mac has an Intel or Apple silicon processor, please [see this article](https://support.apple.com/en-us/116943).
+
+# **Multiple YubiKeys, Macs, etc.**
+
+    ##Using the same YubiKey smart card on multiple Macs for logging in:
+
+        Once you have set up your YubiKey on the first Mac, on each other Mac,
+        simply plug in your YubiKey and follow steps 6-9 in the section Pairing your YubiKey with macOS.
+
+
+    ##Using the same YubiKey smart card for multiple accounts on a single Mac:
+
+        On a single Mac, macOS only allows you to associate a given YubiKey with one user account.
+
+
+    ##Using multiple YubiKeys with the same user account on a single Mac:
+
+        For any additional YubiKeys beyond the first, simply follow through the steps in this guide again. 
+        Once this has been done for all YubiKeys, any of them should be able to log you in to/unlock your Mac
+        when you provide the PIN. Note that the PIN may be different for each YubiKey, depending on how you set them up.
+
+# **Lost or stolen YubiKey**
+
+    If you followed these instructions to require a paired smart card for login, 
+    follow the steps in the same article under Disable smart card-only authentication.
+    
+    If you have not set up your Mac to require a smart card, then the YubiKey is not required, 
+    so you should still be able to log in to your Mac without a YubiKey by entering your normal account password 
+    (following the steps in this guide will not change your normal account password). 
+    
+    **To unpair the lost or stolen YubiKey, follow the section above titled How to Unpair Your YubiKey and PIV Login from macOS.**
+
+# **Note:**
+
+    The YubiKey Bio Multi-protocol Edition supports using fingerprint 
+    verification in lieu of the PIN when performing cryptographic operations. 
+    In the case of PIV smart card however, to provide users with this fingerprint
+    option, client software or middleware is required. Yubico has implemented
+    support for this in the Yubico Minidriver from version 4.6.1. If users
+    attempt to use PIV smart card on the YubiKey Bio Multi-protocol Edition
+    without supporting middleware, they will encounter limitations.
+
+    In scenarios where supporting middleware is not available or not utilized,
+    users can still access the PIV application on the YubiKey Bio Multi-protocol
+    Edition. However, they will not have the option to utilize fingerprint
+    authentication for cryptographic operations. Instead, they will need to rely
+    on traditional methods such as entering a PIN.
+
+    While users can still access the PIV application and perform cryptographic
+    operations, they miss out on the convenience and potentially enhanced
+    security offered by biometric authentication. Without the fingerprint
+    option, users may need to rely on the PIN.
+
+# **Acknowledgments:**
+Source: [Using your YubiKey as a smart card in macOS](https://support.yubico.com/hc/en-us/articles/360016649059-Using-your-YubiKey-as-a-smart-card-in-macOS)
+Credit: Clay Degruchy

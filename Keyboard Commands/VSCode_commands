@@ -1,0 +1,41 @@
+# VSCode Key Commands
+
+## General
+
+- **Ctrl/Cmd + Shift + P** - Open Command Palette
+- **Ctrl/Cmd + P** - Quick Open, Go to File
+- **Ctrl/Cmd + Shift + N** - New Window
+- **Ctrl/Cmd + W** - Close Window
+- **Ctrl/Cmd + ,** - Open Settings
+
+## Editing
+
+- **Ctrl/Cmd + X** - Cut line
+- **Ctrl/Cmd + C** - Copy line
+- **Ctrl/Cmd + V** - Paste
+- **Ctrl/Cmd + Z** - Undo
+- **Ctrl/Cmd + Y** - Redo
+- **Ctrl/Cmd + D** - Select next match
+- **Ctrl/Cmd + L** - Select entire line
+
+## Navigation
+
+- **Ctrl/Cmd + B** - Toggle Sidebar
+- **Ctrl/Cmd + Shift + E** - Show Explorer
+- **Ctrl/Cmd + Shift + F** - Search
+- **Ctrl/Cmd + G** - Go to Line
+- **Ctrl/Cmd + T** - Go to Symbol
+
+## Debugging
+
+- **F5** - Start Debugging
+- **Shift + F5** - Stop Debugging
+- **F9** - Toggle Breakpoint
+- **F10** - Step Over
+- **F11** - Step Into
+
+## Terminal
+
+- **Ctrl/Cmd + `** - Toggle Integrated Terminal
+- **Ctrl/Cmd + Shift + C** - Copy Path of Active File
+- **Ctrl/Cmd + K, Ctrl/Cmd + O** - Open Folder in New Window

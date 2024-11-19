@@ -1,0 +1,47 @@
+# Linux Terminal Commands (Raspberry Pi)
+
+## File System Navigation
+
+- **ls** - List directory contents
+- **cd directory** - Change to specified directory
+- **pwd** - Show current directory path
+- **mkdir directory** - Create a new directory
+- **rm filename** - Remove a file
+- **rm -r directory** - Remove a directory and its contents
+- **mv source target** - Move or rename files and directories
+- **cp source target** - Copy files and directories
+
+## File Viewing & Editing
+
+- **cat filename** - Display contents of a file
+- **less filename** - View file contents one page at a time
+- **nano filename** - Open file in Nano editor
+- **head filename** - Show first 10 lines of file
+- **tail filename** - Show last 10 lines of file
+- **touch filename** - Create an empty file or update timestamp
+
+## System & Process Management
+
+- **top** - Display active processes
+- **ps aux** - List all running processes
+- **kill PID** - Kill a process with a specified PID
+- **sudo shutdown -h now** - Shut down immediately
+- **sudo reboot** - Reboot the Raspberry Pi
+
+## Disk Usage
+
+- **df -h** - Show disk usage
+- **du -sh directory** - Show directory size
+
+## Network
+
+- **ifconfig** - Display network interfaces
+- **ping address** - Ping a network address
+- **curl URL** - Retrieve content from URL
+- **wget URL** - Download files from URL
+
+## Package Management (APT)
+
+- **sudo apt update** - Update package lists
+- **sudo apt upgrade** - Upgrade all packages
+- **sudo apt install package** - Install a package

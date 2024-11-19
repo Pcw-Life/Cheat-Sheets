@@ -1,0 +1,49 @@
+# Configuring macOS for smart card–only authentication
+
+macOS supports smart card–only authentication for the mandatory use of a smart card, which disables all password-based authentication. This policy is established across all of macOS, and can be changed on a per-user basis using an exemption group, in the event that a user doesn’t have a working smart card available.
+
+## Smart card–only authentication using machine based enforcement
+
+macOS 10.13.2 or later support smart card–only authentication for the mandatory use of a smart card, which disables all password-based authentication. This configuration is enforced across all of macOS and is often called Machine Based Enforcement. To leverage this feature, mandatory smart card enforcement must be established using a mobile device management (MDM) solution or by using the following command:
+
+```
+sudo defaults write /Library/Preferences/com.apple.security.smartcard enforceSmartCard -bool true
+```
+
+## Smart card–only authentication using per-user enforcement
+
+Per-user enforcement is accomplished by specifying a user group that will be exempted from smart card login. NotEnforcedGroup contains a string value that defines the name of an local or Directory group that won’t be included in mandatory smart card enforcement. This is sometimes referred to as User Based Enforcement and provides per-user granularity to smart card services. To leverage this feature, machine based enforcement must be established using a mobile device management (MDM) solution or by using the following command:
+
+```
+sudo defaults write /Library/Preferences/com.apple.security.smartcard enforceSmartCard -bool true
+```
+
+In addition, the system must be configured to allow users who aren’t paired with a smart card to log in with password:
+
+```
+sudo defaults write /Library/Preferences/com.apple.security.smartcard allowUnmappedUsers -int 1
+```
+
+Use the example /private/etc/SmartcardLogin.plist file below as guidance. The EXEMPT_GROUP should be the name of the group used for exemptions. Any user added to this group is exempt from smart card login, as long as they are a specified member of the group or the group itself is specified for exemption. Verify ownership is root and permissions are set to world readable after editing.
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+     <key>AttributeMapping</key>
+     <dict>
+          <key>dsAttributeString</key>
+          <string>dsAttrTypeStandard:AltSecurityIdentities</string>
+          <key>fields</key>
+          <array>
+                <string>NT Principal Name</string>
+          </array>
+          <key>formatString</key>
+          <string>Kerberos:$1</string>
+     </dict>
+     <key>NotEnforcedGroup</key>
+     <string>EXEMPT_GROUP</string>
+</dict>
+</plist>
+```

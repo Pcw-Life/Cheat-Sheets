@@ -1,0 +1,84 @@
+# MacOS smartcard
+
+List tokens available in the system
+
+	pluginkit -m -p com.apple.ctk-tokens
+
+ex: com.apple.CryptoTokenKit.setoken(1.0)
+com.apple.CryptoTokenKit.pivtoken(1.0)
+
+Enable, disable or list disabled smart card tokens
+sudo security smartcards token [-l] [-e token] [-d token]
+
+Unpair the smart card
+sudo sc_auth unpair -u jappleeed
+
+Display available smart cards
+sudo security list-smartcards
+
+Export items from a smart card
+sudo security export-smartcard
+
+Smart card logging
+sudo defaults write /Library/Preferences/com.apple.security.smartcard Logging -bool true
+
+Disable built-in PIV tokens
+sudo defaults write /Library/Preferences/com.apple.security.smartcard DisabledTokens -array com.apple.CryptoTokenKit.pivtoken
+
+## Smart card–only authentication using machine based enforcement
+
+macOS 10.13.2 or later support smart card–only authentication for the mandatory use of a smart card, which disables all password-based authentication. This configuration is enforced across all of macOS and is often called Machine Based Enforcement. To leverage this feature, mandatory smart card enforcement must be established using a mobile device management (MDM) solution or by using the following command: 
+```
+sudo defaults write /Library/Preferences/com.apple.security.smartcard enforceSmartCard -bool true
+```
+
+## Managing smart card payloads
+
+    Suppress prompt to pair on token insertion
+    sudo defaults write /Library/Preferences/com.apple.security.smartcard UserPairing -bool false
+
+    Limit user account pairing to a single smart card
+    sudo defaults write /Library/Preferences/com.apple.security.smartcard oneCardPerUser -bool true
+
+    Disable smart card user for login and authorization
+    sudo defaults write /Library/Preferences/com.apple.security.smartcard allowSmartCard -bool false
+
+    Note: When disabling allowSmartCard, smart card certificates identities can still be used for other operations such as signing and encryption and in supported third-party apps.
+
+    Manage smart card certificate trust behavior
+    sudo defaults write /Library/Preferences/com.apple.security.smartcard checkCertificateTrust -int<value>
+
+    The value can be one of the following:
+
+        0: Smart card certificate trust isn’t required.
+
+        1: Smart card certificate and chain must be trusted.
+
+        2: Certificate and chain must be trusted and not receive a revoked status.
+
+        3: Certificate and chain must be trusted and revocation status is returned valid.
+
+Certificate pinning
+
+It’s possible to specify the Certificate Issuing Authorities used for the trust evaluation of smart card certificates. This trust works in conjunction with Certificate Trust settings (1, 2, or 3 required) and is also referred to as Certificate Pinning. Place SHA-256 fingerprints of Certificate Authorities (as string values, comma delimited, and without spaces) in an array named TrustedAuthorities. Use the example /private/etc/SmartcardLogin.plist file below as guidance. When Certificate Pinning is used, only SmartCard certificates issued by Certificate Authorities in this list are evaluated as trusted. Please note that TrustedAuthorities are ignored when the checkCertificateTrust setting is set to 0 (off). Verify ownership is root and permissions are set to world readable after editing.
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+        <dict>
+            <key>AttributeMapping</key>
+            <dict>
+                <key>dsAttributeString</key>
+                <string>dsAttrTypeStandard:AltSecurityIdentities</string>
+                <key>fields</key>
+                <array>
+                    <string>NT Principal Name</string>
+                </array>
+                <key>formatString</key>
+                <string>Kerberos:$1</string>
+            </dict>
+            <key>TrustedAuthorities</key>
+            <array>
+                <string>SHA256_HASH_OF_CERTDOMAIN_1,SHA256_HASH_OF_CERTDOMAIN_2</string>
+            </array>
+        </dict>
+    </plist>

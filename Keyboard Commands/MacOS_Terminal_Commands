@@ -1,0 +1,47 @@
+# macOS Terminal Commands
+
+## File System Navigation
+
+- **ls** - List directory contents
+- **cd directory** - Change to specified directory
+- **pwd** - Show current directory path
+- **mkdir directory** - Create a new directory
+- **rm filename** - Remove a file
+- **rm -r directory** - Remove a directory and its contents
+- **mv source target** - Move or rename files and directories
+- **cp source target** - Copy files and directories
+- **pwd** - show current path
+
+## File Viewing & Editing
+
+- **cat filename** - Display contents of a file
+- **less filename** - View file contents one page at a time
+- **nano filename** - Open file in Nano editor
+- **open filename** - Open file with default application
+- **touch filename** - Create an empty file or update timestamp
+
+## System & Process Management
+
+- **top** - Display active processes
+- **ps aux** - List all running processes
+- **kill PID** - Kill a process with a specified PID
+- **sudo shutdown -h now** - Shut down immediately
+- **sudo reboot** - Reboot the computer
+
+## Disk Usage
+
+- **df -h** - Show disk usage
+- **du -sh directory** - Show directory size
+
+## Network
+
+- **ifconfig** - Display network interfaces
+- **ping address** - Ping a network address
+- **curl URL** - Retrieve content from URL
+- **wget URL** - Download files from URL (requires installation)
+
+## Package Management
+
+- **brew install package** - Install a package using Homebrew
+- **brew update** - Update Homebrew
+- **brew upgrade package** - Upgrade a specific package

@@ -1,0 +1,78 @@
+You can configure Smart Card settings for Mac computers enrolled in a mobile device management (MDM) solution. Use the Smart Card payload to manage specific settings for Smart Cards. User overrides aren’t permitted.
+
+OS and channel
+	
+
+Supported enrollment types
+	
+
+Interaction
+	
+
+Duplicates
+
+macOS device
+	
+
+Device
+
+Automated Device
+	
+
+Exclusive
+	
+
+Single
+
+Setting
+	
+
+Description
+	
+
+Required
+
+Smart Card use
+	
+
+Specify whether users can use a smart card for logins, authorizations, and screensaver unlocking. Smart cards can still be used for signing mail messages, web access, and other services. The Mac must be restarted for this change to take effect.
+	
+
+No
+
+User pairing
+	
+
+Specify whether users can see any new pairing dialogs. Existing pairings will still work.
+	
+
+No
+
+Restrict one smart card per user
+	
+
+Specify whether users can pair with only one smart card. Existing pairings for that user will still work.
+	
+
+No
+
+Enable screen saver
+	
+
+When a smart card is removed, the screensaver is automatically enabled.
+	
+
+No
+
+Check the certificate trust
+	
+
+Configure one of these options:
+
+    Certificate trust check is turned off.
+
+    Certificate trust check is turned on.
+
+    Certificate trust check is turned on and revocation check is set to the soft level (unreachable OCSP/CRL means success).
+
+    Certificate trust check is turned on and revocation check is set to the hard level (verified positive response is needed to succeed).

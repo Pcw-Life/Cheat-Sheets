@@ -1,0 +1,30 @@
+# Nano Key Commands
+
+## Basic Navigation
+
+- **Ctrl + A** - Move to the beginning of the line
+- **Ctrl + E** - Move to the end of the line
+- **Ctrl + Y** - Move up one page
+- **Ctrl + V** - Move down one page
+- **Ctrl + _** - Go to a specific line
+
+## Editing Text
+
+- **Ctrl + K** - Cut text (line or selection)
+- **Ctrl + U** - Paste text
+- **Ctrl + 6** - Start marking text (for cut and paste)
+- **Ctrl + W** - Search for text
+- **Ctrl + T** - Open spell checker
+
+## Saving and Exiting
+
+- **Ctrl + O** - Write/save file
+- **Ctrl + X** - Exit nano
+- **Ctrl + G** - Open help
+
+## Other Useful Commands
+
+- **Ctrl + R** - Insert another file
+- **Ctrl + C** - Show the current cursor position
+- **Alt + U** - Undo last action
+- **Alt + E** - Redo last action
