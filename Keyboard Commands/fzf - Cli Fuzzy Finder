@@ -1,0 +1,115 @@
+###Overview and Key Bindings
+
+`fzf` is a command-line fuzzy finder, a powerful and interactive tool for searching and selecting items from a list. It is highly customizable and can be integrated into various workflows, including file searching, command history navigation, and Git operations.
+
+#### Key Features of `fzf`:
+- **Blazing Fast Search**: Performs real-time fuzzy searching on large data sets.
+- **Extensibility**: Can be integrated with shell commands to enhance productivity.
+- **Interactive Interface**: Provides an interactive and visually appealing interface.
+- **Cross-Platform**: Works on Linux, macOS, and Windows (via WSL or Cygwin).
+
+---
+
+### Default Key Bindings for `fzf`
+
+When `fzf` is installed, it provides a set of default key bindings for common tasks in the terminal. Below is a breakdown of its functionalities and key bindings:
+
+#### Shell Key Bindings:
+1. **CTRL + R**
+   - **Function**: Fuzzy search through the command history.
+   - **Use Case**: Quickly find and reuse previously executed commands.
+
+2. **CTRL + T**
+   - **Function**: Fuzzy search for files and directories under the current directory.
+   - **Use Case**: Quickly locate and open files.
+
+3. **ALT + C**
+   - **Function**: Fuzzy search for subdirectories under the current directory and `cd` into the selected directory.
+   - **Use Case**: Navigate directories faster.
+
+#### Fuzzy Search Commands:
+- `fzf --preview '<command>'`:
+  - Enables a preview window showing the output of a command applied to the selected item.
+  - Example: `fzf --preview 'cat {}'` to preview the contents of selected files.
+
+- `fzf --multi`:
+  - Allows multiple selections with `TAB` key.
+  - Example: `ls | fzf --multi`.
+
+---
+
+### Customizing Key Bindings
+
+To customize or extend `fzf` key bindings, include the following in your `.bashrc` or `.zshrc`:
+
+```bash
+# Enable fzf key bindings
+if [ -f ~/.fzf.bash ]; then
+    source ~/.fzf.bash
+fi
+
+# Custom binding for file search
+bind -x '"\C-f": "fzf | xargs -o vim"'  # Open selected file in Vim
+
+# Custom binding for searching processes
+bind -x '"\C-p": "ps aux | fzf | awk '{print $2}' | xargs kill"'  # Select process to kill
+```
+
+---
+
+### Common Use Cases
+
+1. **Search Command History**:
+   ```bash
+   fzf --history
+   ```
+   Quickly search and execute previous commands.
+
+2. **Search Files and Open in Editor**:
+   ```bash
+   find . -type f | fzf | xargs vim
+   ```
+   Locate a file and open it in Vim or your preferred editor.
+
+3. **Preview File Contents**:
+   ```bash
+   find . -type f | fzf --preview 'cat {}'
+   ```
+   View file contents during selection.
+
+4. **Git Integration**:
+   - Search and checkout branches:
+     ```bash
+     git branch | fzf | xargs git checkout
+     ```
+   - Search and apply stash:
+     ```bash
+     git stash list | fzf | awk '{print $1}' | xargs git stash apply
+     ```
+
+---
+
+### Advanced Options
+
+- **Custom Layout**:
+  Customize how `fzf` appears on the terminal using options:
+  ```bash
+  fzf --height=40% --layout=reverse --border
+  ```
+  - `--height=40%`: Set the height of the fzf interface.
+  - `--layout=reverse`: Show the search input at the bottom.
+  - `--border`: Display a border around the fzf window.
+
+- **Search by File Type**:
+  ```bash
+  find . -type f -name "*.txt" | fzf
+  ```
+
+---
+
+### Installation Verification
+To ensure `fzf` key bindings are loaded, run:
+```bash
+source ~/.fzf.bash
+```
+
