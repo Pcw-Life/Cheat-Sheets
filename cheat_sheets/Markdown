@@ -1,0 +1,243 @@
+# Markdown Cheat Sheet
+
+Markdown is a lightweight markup language for formatting text. Here’s a complete guide to Markdown syntax for quick reference.
+
+---
+
+## Headings
+Use `#` for headings. The number of `#` determines the heading level.
+```markdown
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+##### Heading 5
+###### Heading 6
+```
+
+Renders as:
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+##### Heading 5
+###### Heading 6
+
+---
+
+## Text Formatting
+
+### Bold, Italic, and Strikethrough
+```markdown
+**Bold Text**
+*Italic Text*
+~~Strikethrough~~
+***Bold and Italic***
+```
+
+Renders as:
+- **Bold Text**
+- *Italic Text*
+- ~~Strikethrough~~
+- ***Bold and Italic***
+
+### Inline Code
+Use backticks for inline code.
+```markdown
+`Inline Code`
+```
+Renders as: `Inline Code`
+
+---
+
+## Links
+```markdown
+[Link Text](https://example.com)
+[Link with Title](https://example.com "Title")
+```
+
+Renders as:
+- [Link Text](https://example.com)
+- [Link with Title](https://example.com "Title")
+
+---
+
+## Images
+```markdown
+![Alt Text](image-url)
+![Image with Title](image-url "Title")
+```
+
+Renders as:
+![Alt Text](https://via.placeholder.com/150)
+
+---
+
+## Lists
+
+### Unordered Lists
+```markdown
+- Item 1
+- Item 2
+  - Subitem 2.1
+  - Subitem 2.2
+```
+
+Renders as:
+- Item 1
+- Item 2
+  - Subitem 2.1
+  - Subitem 2.2
+
+### Ordered Lists
+```markdown
+1. Item 1
+2. Item 2
+   1. Subitem 2.1
+   2. Subitem 2.2
+```
+
+Renders as:
+1. Item 1
+2. Item 2
+   1. Subitem 2.1
+   2. Subitem 2.2
+
+---
+
+## Blockquotes
+```markdown
+> This is a blockquote.
+>> Nested blockquote.
+```
+
+Renders as:
+> This is a blockquote.  
+>> Nested blockquote.
+
+---
+
+## Code Blocks
+Use triple backticks for code blocks. Optionally, specify a language for syntax highlighting.
+```markdown
+\`\`\`language
+Code block example
+\`\`\`
+```
+
+Example with Python:
+```python
+def hello_world():
+    print("Hello, World!")
+```
+
+---
+
+## Horizontal Rules
+```markdown
+---
+***
+___
+```
+
+Renders as:
+---
+***
+___
+
+---
+
+## Tables
+Use pipes (`|`) and hyphens (`-`) to create tables.
+```markdown
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| Row 1    | Data 1   | Data 2   |
+| Row 2    | Data 3   | Data 4   |
+```
+
+Renders as:
+| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| Row 1    | Data 1   | Data 2   |
+| Row 2    | Data 3   | Data 4   |
+
+---
+
+## Task Lists
+```markdown
+- [ ] Task 1
+- [x] Completed Task
+```
+
+Renders as:
+- [ ] Task 1
+- [x] Completed Task
+
+---
+
+## Emphasis
+Use backslashes (`\`) to escape Markdown syntax.
+```markdown
+\*\*Not bold\*\*
+```
+
+Renders as: **Not bold**
+
+---
+
+## Special Characters
+Escape special characters by preceding them with a backslash (`\`).
+```markdown
+\* \# \[ \] \( \)
+```
+Renders as: * # [ ] ( )
+
+---
+
+## Footnotes
+Add footnotes using `[^footnote]` syntax.
+```markdown
+This is a sentence with a footnote.[^1]
+
+[^1]: This is the footnote text.
+```
+Renders as:
+This is a sentence with a footnote.[^1]
+
+[^1]: This is the footnote text.
+
+---
+
+## Advanced Features
+
+### Definitions
+```markdown
+Term
+: Definition for the term
+```
+
+Renders as:
+Term  
+: Definition for the term
+
+### Inline HTML
+You can include raw HTML for advanced formatting.
+```markdown
+<b>Bold with HTML</b>
+```
+
+Renders as:
+<b>Bold with HTML</b>
+
+---
+
+## Additional Resources
+For more detailed Markdown syntax:
+- [Markdown Guide](https://www.markdownguide.org/)
+- [GitHub Flavored Markdown](https://github.github.com/gfm/)
+
+---
+
+This cheat sheet provides all the essentials to start using Markdown effectively!
+
