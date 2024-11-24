@@ -2,29 +2,55 @@
 export PATH="/usr/local/bin:/opt/homebrew/bin:$PATH"
 
 # Setup Zsh Completions and Enable Them
+# Configure Zsh completion functions directory and initialize completion system
 fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
 autoload -U compinit
 compinit
 
 # Enable Zsh Plugins
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Load fzf plugin for fuzzy searching
+if [ -f ~/.fzf.zsh ]; then
+    echo "[DEBUG] Loading fzf plugin..."
+    source ~/.fzf.zsh || echo "[ERROR] Failed to load fzf plugin."
+fi
+# Load Zsh autosuggestions plugin for command-line suggestions
+if [ -f ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    echo "[DEBUG] Loading Zsh autosuggestions plugin..."
+    source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh || echo "[ERROR] Failed to load Zsh autosuggestions."
+fi
+# Load Zsh syntax highlighting plugin for command syntax visuals
+if [ -f ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    echo "[DEBUG] Loading Zsh syntax highlighting plugin..."
+    source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh || echo "[ERROR] Failed to load Zsh syntax highlighting."
+fi
 
 # Adjust Colors for Autosuggestions
+# Customize the color of suggestions displayed by the autosuggestions plugin
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
 
-# Customize colors for tabs
+# Customize colors for syntax highlighting styles
+# Set default text color to white and bold, brackets to cyan and bold
 ZSH_HIGHLIGHT_STYLES[default]=fg=white,bold
 ZSH_HIGHLIGHT_STYLES[bracket]=fg=cyan,bold
 
 # Load Oh My Posh with the theme "atomic"
-eval "$(oh-my-posh init zsh --config ~/.zsh/atomic.omp.json)"
+# Check if oh-my-posh is installed and initialize it with the atomic theme
+if command -v oh-my-posh >/dev/null 2>&1; then
+    echo "[DEBUG] Initializing Oh My Posh..."
+    eval "$(oh-my-posh init zsh --config ~/.zsh/atomic.omp.json)" || echo "[ERROR] Failed to initialize Oh My Posh."
+else
+    echo "[ERROR] Oh My Posh not found."
+fi
 
 # Source 1Password Plugins
-source /Users/pcwsecurity/.config/op/plugins.sh
+# Load 1Password shell plugin if available
+if [ -f /Users/pcwsecurity/.config/op/plugins.sh ]; then
+    echo "[DEBUG] Loading 1Password plugins..."
+    source /Users/pcwsecurity/.config/op/plugins.sh || echo "[ERROR] Failed to load 1Password plugins."
+fi
 
 # Enable fzf history search with Ctrl+R (Zsh-compatible)
+# Configure fzf to display recent commands when Ctrl+R is pressed
 export FZF_DEFAULT_COMMAND='history -n 1 | cut -c 8-'
 export FZF_CTRL_R_OPTS='--height 40% --border'
 autoload -U up-line-or-beginning-search down-line-or-beginning-search
@@ -33,100 +59,125 @@ zle -N down-line-or-beginning-search
 bindkey '^R' up-line-or-beginning-search
 
 # Aliases
+# Commonly used shortcuts for commands
 alias ll='ls -la'
 alias gs='git status'
 alias gp='git pull'
 alias gc='git commit -m'
-
-# Environment Variables
-export EDITOR='code'
-export NODE_ENV='development'
-
-# Set Vim as an alternative editor
-alias vim='nvim'  # If you use Neovim, otherwise use 'vim'
-export VISUAL='vim'
-export EDITOR='vim'
-
-# Alias to switch between VS Code and Vim
+alias vim='nvim'  # Use Neovim as default editor
 alias edit='code .'  # Open current directory in VS Code
 alias vedit='vim'    # Open files in Vim
 
+# Environment Variables
+# Set default editors and Node environment
+export EDITOR='vim'
+export VISUAL='vim'
+export NODE_ENV='development'
+
 # Custom Functions
+# Create a directory (if it doesn't exist) and change into it
 function mkcd() {
+    echo "[DEBUG] Creating and navigating to directory: $1"
     mkdir -p "$1"
-    cd "$1"
+    cd "$1" || echo "[ERROR] Failed to navigate to directory: $1"
 }
 
+# Navigate to a specific project folder within ~/projects
 function proj() {
-    cd ~/projects/"$1"
+    echo "[DEBUG] Navigating to project: $1"
+    cd ~/projects/"$1" || echo "[ERROR] Project not found: $1"
 }
 
+# Open the current directory in VS Code
 function copen() {
-    code .
+    echo "[DEBUG] Opening current directory in VS Code..."
+    code . || echo "[ERROR] Failed to open VS Code."
 }
 
+# Search for a file or directory by name in the current directory
 function fsearch() {
-    find . -name "$1"
+    echo "[DEBUG] Searching for: $1"
+    find . -name "$1" || echo "[ERROR] File not found: $1"
 }
 
+# View a file using the bat command for syntax highlighting (alternative to cat)
 function vcat() {
-    bat "$1"
+    echo "[DEBUG] Viewing file with bat: $1"
+    bat "$1" || echo "[ERROR] File not found: $1"
 }
 
+# Update and upgrade Homebrew packages
 function brewup() {
-    brew update && brew upgrade && brew cleanup
+    echo "[DEBUG] Updating and upgrading Homebrew..."
+    brew update && brew upgrade && brew cleanup || echo "[ERROR] Error updating Homebrew."
 }
 
+# Add, commit, and push all changes to the Git repository
 function gacp() {
-    git add .
-    git commit -m "$1"
-    git push
+    echo "[DEBUG] Adding, committing, and pushing changes with message: $1"
+    git add . && git commit -m "$1" && git push || echo "[ERROR] Git operation failed."
 }
 
+# Open a file in Vim
 function vopen() {
-
-function copen() {
-
-function copen() {
-    code .
+    echo "[DEBUG] Opening file in Vim: $1"
+    vim "$1" || echo "[ERROR] File not found: $1"
 }
 
+# Display the current status of the Git repository
 function gstatus() {
-    git status
+    echo "[DEBUG] Displaying Git status..."
+    git status || echo "[ERROR] Failed to display Git status."
 }
 
+# Pull the latest changes from the remote repository
 function gpull() {
-    git pull
+    echo "[DEBUG] Pulling latest changes from remote..."
+    git pull || echo "[ERROR] Git pull failed."
 }
 
+# List all branches in the Git repository, including remote branches
 function gbranches() {
-    git branch -a
+    echo "[DEBUG] Listing Git branches..."
+    git branch -a || echo "[ERROR] Failed to list Git branches."
 }
 
+# Navigate to the home directory
 function gohome() {
-    cd ~
+    echo "[DEBUG] Navigating to home directory..."
+    cd ~ || echo "[ERROR] Failed to navigate to home directory."
 }
 
+# Search for a string in files recursively
 function search() {
-    grep -rnw '.' -e "$1"
+    echo "[DEBUG] Searching for string: $1"
+    grep -rnw '.' -e "$1" || echo "[ERROR] Search failed for: $1"
 }
 
+# Display disk usage of files and directories in the current directory
 function dusage() {
-    du -sh *
+    echo "[DEBUG] Displaying disk usage..."
+    du -sh * || echo "[ERROR] Failed to display disk usage."
 }
 
+# Open the .zshrc file for editing
 function editzshrc() {
-    code ~/.zshrc  # Use 'vim' if you prefer Vim
+    echo "[DEBUG] Opening .zshrc file for editing..."
+    code ~/.zshrc || vim ~/.zshrc || echo "[ERROR] Failed to open .zshrc."
 }
 
 # Function to list all aliases and functions
 function list_aliases_functions() {
+    echo "[DEBUG] Listing aliases and functions..."
     echo "Aliases:"
     alias
     echo
     echo "Functions:"
     declare -f | grep '^[a-zA-Z_][a-zA-Z0-9_]* ()'
 }
+
+# Reload the ~/.zshrc file to apply recent changes
 function reloadzshrc() {
-    source ~/.zshrc
+    echo "[DEBUG] Reloading .zshrc..."
+    source ~/.zshrc && echo "[DEBUG] .zshrc reloaded successfully." || echo "[ERROR] Failed to reload .zshrc."
 }
